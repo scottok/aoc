@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AOC Runner (Debug)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/Aoc.Runner/bin/Debug/net9.0/Aoc.Runner.dll",
+      "args": ["2025", "6", "2", "inputs/2025/test06.txt"],
+      "cwd": "${workspaceFolder}/Aoc.Runner",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ] 
+}

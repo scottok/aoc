@@ -1,0 +1,14 @@
+public static class DayRegistry
+{
+    public static IReadOnlyDictionary<(int Year, int Day), IAocDay> Days { get; }
+        = new IAocDay[]
+        {
+            new Aoc.Days.Year2025.Day01(),
+            new Aoc.Days.Year2025.Day02(),
+            new Aoc.Days.Year2025.Day03(),
+            new Aoc.Days.Year2025.Day04(),
+            new Aoc.Days.Year2025.Day05(),
+            new Aoc.Days.Year2025.Day06(),
+        }
+        .ToDictionary(d => (d.Year, d.Day));
+}
