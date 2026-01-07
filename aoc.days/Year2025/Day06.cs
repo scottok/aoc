@@ -66,8 +66,42 @@ public sealed class Day06 : IAocDay
         var equations = ParseByOperatorLineSpans(input, out int columnCount);
 
         int rows = equations.GetLength(0);
-        int cols = equations.GetLength(1);
+        int cols = columnCount;
 
+        //process each column as an equation, where the last row contains the operand
+        for (int i = 0; i < cols; i++)
+        {
+            string operand = new string(equations[rows - 1][i]).Trim(); //get the operand from the last row
+            int colWidth = equations[0][i].Length;
+            long columnProduct = 0;
+            for (int k = colWidth; k > 0; k--)
+            {
+                string buildValue = "";
+
+                for (int j = 0; j < rows - 1; j++) //exclude the last row, which contains the operands
+                {
+                    char cellStr = equations[j][i][k - 1];
+                    if (!string.IsNullOrEmpty(cellStr.ToString().Trim() ))
+                        buildValue += cellStr;
+                }
+                if (long.TryParse(buildValue, out long number))
+                {
+                    if (operand == "+")
+                    {
+                        columnProduct += number;
+                    }
+                    else if (operand == "*")
+                    {
+                        if (k == colWidth)
+                            columnProduct = number; //initialize for multiplication
+                        else
+                            columnProduct *= number;
+                    }
+                }
+                
+            }
+            totalProducts += columnProduct;
+        }
 
         return $"Total of equation answers: {totalProducts} ";
     }
@@ -102,14 +136,14 @@ public sealed class Day06 : IAocDay
         for (int i = 0; i < opLine.Length; i++)
         {
             char ch = opLine[i];
-            if (ch == '+' || ch == '*')
+            if (ch == '+' || ch == '*' || ch == '\n')
                 ops.Add(i);
         }
 
         if (ops.Count == 0)
             throw new FormatException("Operator line contained no '+' or '*'.");
 
-        columnCount = ops.Count ;
+        columnCount = ops.Count;
 
         // 3) Build column spans [start, end] based on operator positions
         int[] starts = new int[columnCount + 1];
@@ -120,17 +154,19 @@ public sealed class Day06 : IAocDay
         widths[0] = ops[0] - 0; // may be 0 if operator at index 0
 
         // middle columns: between operators (excluding the operator char itself)
-        for (int c = 1; c < ops.Count ; c++)
+        for (int c = 1; c < ops.Count + 1; c++)
         {
-            starts[c] = ops[c - 1] ;
-            widths[c] = ops[c] - starts[c];
+            starts[c] = ops[c - 1];
+            if (c < ops.Count)
+            {
+                widths[c] = ops[c] - starts[c] - 1;
+            }
+            else
+            {
+                widths[c] = opLine.Length - starts[c];
+            }
             if (widths[c] < 0) widths[c] = 0;
         }
-
-        // last column: after last operator to end of operator line
-        starts[columnCount] = ops[ops.Count - 1] ;
-        widths[columnCount] = opLine.Length - starts[columnCount - 1];
-        if (widths[columnCount - 1] < 0) widths[columnCount - 1] = 0;
 
         //clear index 0.
         for (int i = 0; i < starts.Length - 1; i++)
@@ -142,10 +178,10 @@ public sealed class Day06 : IAocDay
         widths[widths.Length - 1] = 0; // optional: clear last slot
 
         // 4) Slice each data line by those spans (pad right to opLine length)
-        var dataLines = new List<string>(lines.Length - 1);
+        var dataLines = new List<string>(lines.Length);
         for (int i = 0; i < lines.Length; i++)
-            if (i != opLineIndex)
-                dataLines.Add(lines[i]);
+            //if (i != opLineIndex)
+            dataLines.Add(lines[i]);
 
         char[][][] result = new char[dataLines.Count][][];
 
@@ -158,7 +194,7 @@ public sealed class Day06 : IAocDay
 
             result[r] = new char[columnCount][];
 
-            for (int c = 0; c < columnCount - 1; c++)
+            for (int c = 0; c < columnCount; c++)
             {
                 int w = widths[c];
 
@@ -168,10 +204,10 @@ public sealed class Day06 : IAocDay
                 char[] cell = new char[w];
                 for (int k = 0; k < w; k++) cell[k] = ' '; // baseline spaces (no '\0')
 
-                int s = starts[c] ;
+                int s = starts[c];
                 int copyLen = Math.Min(w, Math.Max(0, line.Length - s));
 
-                for (int k = 0; k < copyLen ; k++)
+                for (int k = 0; k < copyLen; k++)
                     cell[k] = line[s + k];
 
                 result[r][c] = cell;

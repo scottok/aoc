@@ -16,3 +16,4 @@
 /Users/scottkleinert/Library/CloudStorage/OneDrive-Personal/_code/aoc/aoc.runner/obj/Debug/net9.0/aoc.runner.pdb
 /Users/scottkleinert/Library/CloudStorage/OneDrive-Personal/_code/aoc/aoc.runner/obj/Debug/net9.0/aoc.runner.genruntimeconfig.cache
 /Users/scottkleinert/Library/CloudStorage/OneDrive-Personal/_code/aoc/aoc.runner/obj/Debug/net9.0/ref/aoc.runner.dll
+/Users/scottkleinert/Library/CloudStorage/OneDrive-Personal/_code/aoc/aoc.runner/obj/Debug/net9.0/aoc.runner.sourcelink.json

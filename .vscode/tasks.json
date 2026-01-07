@@ -7,7 +7,7 @@
       "command": "dotnet",
       "args": [
         "build",
-        "${workspaceFolder}/Aoc.Runner/Aoc.Runner.csproj",
+        "${workspaceFolder}/aoc.runner/aoc.runner.csproj",
         "-c",
         "Debug"
       ],

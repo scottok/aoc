@@ -5,6 +5,7 @@ namespace Aoc.Days.Year2025;
 
 public static class Helper
 {
+    public  readonly record struct Point3D(int X, int Y, int Z);
     public static IEnumerable<string> SplitByLength(string input, int length)
     {
         if (string.IsNullOrEmpty(input))
@@ -16,114 +17,138 @@ public static class Helper
         }
     }
 
-    public static IEnumerable<int> SplitByLengthInt(string input, int length)
+    private static string[] SplitFixedWidth(string input, int width)
     {
-        if (string.IsNullOrEmpty(input))
-            yield break;
+        if (width <= 0)
+            throw new ArgumentException("Fixed width must be greater than zero.");
 
-        for (int i = 0; i < input.Length; i += length)
+        int columnCount = (int)Math.Ceiling(input.Length / (double)width);
+        var result = new string[columnCount];
+
+        for (int i = 0; i < columnCount; i++)
         {
-            yield return int.Parse(input.Substring(i, Math.Min(length, input.Length - i)));
+            int start = i * width;
+            int length = Math.Min(width, input.Length - start);
+
+            result[i] = input.Substring(start, length).Trim();
         }
+
+        return result;
     }
 
-    public static string[,] LoadMatrix(string input, char rowDelimiter = '\n', char columnDelimiter = ' ')
+    public static char[,] LoadCharMatrix(string input, char rowDelimiter = '\n', char columnDelimiter = ' ')
     {
-        var rows = input.Split(rowDelimiter, StringSplitOptions.RemoveEmptyEntries);
-        int rowCount = rows.Length;
-        int columnCount = rows[0].Split(columnDelimiter, StringSplitOptions.RemoveEmptyEntries).Length;
+        var rows = input
+            .Split(rowDelimiter, StringSplitOptions.RemoveEmptyEntries)
+            .Select(r => r.Trim())
+            .ToArray();
 
-        var matrix = new string[rowCount, columnCount];
+        if (rows.Length == 0)
+            throw new ArgumentException("Input is empty.");
+
+        bool isFixedWidth = char.IsDigit(columnDelimiter);
+        int fixedWidth = isFixedWidth ? int.Parse(columnDelimiter.ToString()) : 0;
+
+        string[] firstRowColumns = isFixedWidth
+            ? SplitFixedWidth(rows[0], fixedWidth)
+            : rows[0].Split(columnDelimiter, StringSplitOptions.RemoveEmptyEntries);
+
+        int rowCount = rows.Length;
+        int columnCount = firstRowColumns.Length;
+
+        var matrix = new char[rowCount, columnCount];
 
         for (int i = 0; i < rowCount; i++)
         {
+            string[] columns = isFixedWidth
+                ? SplitFixedWidth(rows[i], fixedWidth)
+                : rows[i].Split(columnDelimiter, StringSplitOptions.RemoveEmptyEntries);
 
-            var columns = rows[i].Split(columnDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            //var columns = rows[i].ToCharArray().Select(c => c.ToString()).ToArray();
+            if (columns.Length != columnCount)
+                throw new FormatException($"Row {i} has {columns.Length} columns, expected {columnCount}.");
+
             for (int j = 0; j < columnCount; j++)
             {
-                matrix[i, j] = columns[j];
+                if (columns[j].Length != 1)
+                    throw new FormatException(
+                        $"Invalid char at row {i}, column {j}: '{columns[j]}'");
+
+                matrix[i, j] = columns[j][0];
             }
         }
 
         return matrix;
     }
 
-public static char[][][] ParseFixedColumnsAutoWidth(string input)
-{
-    string[] lines = input.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-    // 1) Auto-detect column width as the longest contiguous run of digits anywhere
-    int cellWidth = 0;
-
-    for (int r = 0; r < lines.Length; r++)
+    public static string[,] LoadMatrix(string input, char rowDelimiter = '\n', char columnDelimiter = ' ')
     {
-        string line = lines[r];
+        var rows = input
+            .Split(rowDelimiter, StringSplitOptions.RemoveEmptyEntries)
+            .Select(r => r.Trim())
+            .ToArray();
 
-        int run = 0;
-        for (int i = 0; i < line.Length; i++)
+        if (rows.Length == 0)
+            throw new ArgumentException("Input is empty.");
+
+        bool isFixedWidth = char.IsDigit(columnDelimiter);
+        int fixedWidth = isFixedWidth ? int.Parse(columnDelimiter.ToString()) : 0;
+
+        string[] firstRowColumns = isFixedWidth
+            ? SplitFixedWidth(rows[0], fixedWidth)
+            : rows[0].Split(columnDelimiter, StringSplitOptions.RemoveEmptyEntries);
+
+        int rowCount = rows.Length;
+        int columnCount = firstRowColumns.Length;
+
+        var matrix = new string[rowCount, columnCount];
+
+        for (int i = 0; i < rowCount; i++)
         {
-            char ch = line[i];
-            if (ch >= '0' && ch <= '9')
-            {
-                run++;
-                if (run > cellWidth) cellWidth = run;
-            }
-            else
-            {
-                run = 0;
-            }
+            string[] columns = isFixedWidth
+                ? SplitFixedWidth(rows[i], fixedWidth)
+                : rows[i].Split(columnDelimiter, StringSplitOptions.RemoveEmptyEntries);
+
+            if (columns.Length != columnCount)
+                throw new FormatException($"Row {i} has {columns.Length} columns, expected {columnCount}.");
+
+            for (int j = 0; j < columnCount; j++)
+                matrix[i, j] = columns[j];
         }
+
+        return matrix;
     }
 
-    if (cellWidth == 0)
-        return Array.Empty<char[][]>();
-
-    const char delimiter = ' '; // one space between columns in the fixed format
-
-    // 2) Parse each line into fixed-width cells (cellWidth), skipping ONE delimiter between cells
-    char[][][] result = new char[lines.Length][][];
-
-    for (int r = 0; r < lines.Length; r++)
+    // find value in matrix
+    public static (int row, int col)? FindInMatrix(string[,] matrix, string value)
     {
-        string line = lines[r];
-
-        // Count columns by walking fixed blocks
-        int idx = 0;
-        int colCount = 0;
-
-        while (idx < line.Length)
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+        for (int r = 0; r < rows; r++)
         {
-            colCount++;
-            idx += cellWidth;
-            if (idx < line.Length && line[idx] == delimiter)
-                idx += 1; // skip exactly one delimiter space
-        }
-
-        result[r] = new char[colCount][];
-
-        idx = 0;
-        for (int c = 0; c < colCount; c++)
-        {
-            char[] cell = new char[cellWidth];
-
-            // Fill with spaces so trailing blanks are real spaces (not '\0')
-            for (int k = 0; k < cellWidth; k++)
-                cell[k] = ' ';
-
-            // Copy up to cellWidth chars from the line
-            for (int k = 0; k < cellWidth; k++)
+            for (int c = 0; c < cols; c++)
             {
-                int pos = idx + k;
-                if (pos < line.Length)
-                    cell[k] = line[pos];
+                if (matrix[r, c] == value)
+                    return (r, c);
             }
+        }
+        return null;
+    }
 
-            result[r][c] = cell;
+public static char[,] ToCharMatrix(string[,] source)
+{
+    int rows = source.GetLength(0);
+    int cols = source.GetLength(1);
 
-            idx += cellWidth;
-            if (idx < line.Length && line[idx] == delimiter)
-                idx += 1;
+    var result = new char[rows, cols];
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if (source[i, j].Length != 1)
+                throw new ArgumentException($"Cell [{i},{j}] is not a single character.");
+
+            result[i, j] = source[i, j][0];
         }
     }
 
@@ -149,24 +174,58 @@ public static char[][][] ParseFixedColumnsAutoWidth(string input)
         return result.ToString();
     }
 
-public static int CountAdjacentSame8(string[,] grid, int r, int c)
-{
-    int rows = grid.GetLength(0);
-    int cols = grid.GetLength(1);
-
-    string v = grid[r, c];           
-    int[] dr = { -1,-1,-1, 0,0, 1,1,1 };
-    int[] dc = { -1, 0, 1,-1,1,-1,0,1 };
-
-    int count = 0;
-    for (int i = 0; i < 8; i++)
+    public static int CountAdjacentSame8(string[,] grid, int r, int c)
     {
-        int rr = r + dr[i], cc = c + dc[i];
-        if (rr >= 0 && rr < rows && cc >= 0 && cc < cols && grid[rr, cc] == v)
-            count++;
-    }
-    return count;
-}
+        int rows = grid.GetLength(0);
+        int cols = grid.GetLength(1);
 
+        string v = grid[r, c];
+        int[] dr = { -1, -1, -1, 0, 0, 1, 1, 1 };
+        int[] dc = { -1, 0, 1, -1, 1, -1, 0, 1 };
+
+        int count = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            int rr = r + dr[i], cc = c + dc[i];
+            if (rr >= 0 && rr < rows && cc >= 0 && cc < cols && grid[rr, cc] == v)
+                count++;
+        }
+        return count;
+    }
+
+    public static long DistanceManhattan((int row, int col) pos1, (int row, int col) pos2)
+    {
+        return Math.Abs(pos1.row - pos2.row) + Math.Abs(pos1.col - pos2.col);
+    }
+
+    public static long DistanceChebyshev((int row, int col) pos1, (int row, int col) pos2)
+    {
+        return Math.Max(Math.Abs(pos1.row - pos2.row), Math.Abs(pos1.col - pos2.col));
+    }
+
+    public static long DistanceEuclidean((int row, int col) pos1, (int row, int col) pos2)
+    {
+        int dr = pos1.row - pos2.row;
+        int dc = pos1.col - pos2.col;
+        return (long)Math.Sqrt(dr * dr + dc * dc);
+    }
+
+    public static long Distance3DManhattan((int x, int y, int z) pos1, (int x, int y, int z) pos2)
+    {
+        return Math.Abs(pos1.x - pos2.x) + Math.Abs(pos1.y - pos2.y) + Math.Abs(pos1.z - pos2.z);
+    }   
+
+    public static long Distance3DChebyshev((int x, int y, int z) pos1, (int x, int y, int z) pos2)
+    {
+        return Math.Max(Math.Max(Math.Abs(pos1.x - pos2.x), Math.Abs(pos1.y - pos2.y)), Math.Abs(pos1.z - pos2.z));
+    }
+
+    public static long Distance3DEuclidean(Point3D pos1, Point3D pos2)
+    {
+        int dx = pos1.X - pos2.X;
+        int dy = pos1.Y - pos2.Y;
+        int dz = pos1.Z - pos2.Z;
+        return (long)Math.Sqrt(dx * dx + dy * dy + dz * dz);
+    }
 
 }

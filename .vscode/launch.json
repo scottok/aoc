@@ -9,9 +9,9 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/Aoc.Runner/bin/Debug/net9.0/Aoc.Runner.dll",
-      "args": ["2025", "6", "2", "inputs/2025/test06.txt"],
-      "cwd": "${workspaceFolder}/Aoc.Runner",
+      "program": "${workspaceFolder}/aoc.runner/bin/Debug/net9.0/Aoc.Runner.dll",
+      "args": ["2025", "8", "1", "inputs/2025/test08.txt"],
+      "cwd": "${workspaceFolder}/aoc.runner",
       "console": "integratedTerminal",
       "stopAtEntry": false
     }

@@ -9,3 +9,4 @@
 /Users/scottkleinert/Library/CloudStorage/OneDrive-Personal/_code/aoc/aoc.days/obj/Debug/net9.0/refint/aoc.days.dll
 /Users/scottkleinert/Library/CloudStorage/OneDrive-Personal/_code/aoc/aoc.days/obj/Debug/net9.0/aoc.days.pdb
 /Users/scottkleinert/Library/CloudStorage/OneDrive-Personal/_code/aoc/aoc.days/obj/Debug/net9.0/ref/aoc.days.dll
+/Users/scottkleinert/Library/CloudStorage/OneDrive-Personal/_code/aoc/aoc.days/obj/Debug/net9.0/aoc.days.sourcelink.json
