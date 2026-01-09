@@ -11,6 +11,7 @@ public static class DayRegistry
             new Aoc.Days.Year2025.Day06(),
             new Aoc.Days.Year2025.Day07(),
             new Aoc.Days.Year2025.Day08(),
+            new Aoc.Days.Year2025.Day09(),
         }
         .ToDictionary(d => (d.Year, d.Day));
 }

@@ -10,7 +10,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       "program": "${workspaceFolder}/aoc.runner/bin/Debug/net9.0/Aoc.Runner.dll",
-      "args": ["2025", "8", "1", "inputs/2025/test08.txt"],
+      "args": ["2025", "9", "1", "inputs/2025/test09.txt"],
       "cwd": "${workspaceFolder}/aoc.runner",
       "console": "integratedTerminal",
       "stopAtEntry": false

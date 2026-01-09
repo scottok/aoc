@@ -5,7 +5,7 @@ namespace Aoc.Days.Year2025;
 
 public static class Helper
 {
-    public  readonly record struct Point3D(int X, int Y, int Z);
+    public  readonly record struct Point3D(long X, long Y, long Z);
     public static IEnumerable<string> SplitByLength(string input, int length)
     {
         if (string.IsNullOrEmpty(input))
@@ -203,14 +203,14 @@ public static char[,] ToCharMatrix(string[,] source)
         return Math.Max(Math.Abs(pos1.row - pos2.row), Math.Abs(pos1.col - pos2.col));
     }
 
-    public static long DistanceEuclidean((int row, int col) pos1, (int row, int col) pos2)
+    public static long DistanceEuclidean((long row, long col) pos1, (long row, long col) pos2)
     {
-        int dr = pos1.row - pos2.row;
-        int dc = pos1.col - pos2.col;
+        long dr = pos1.row - pos2.row;
+        long dc = pos1.col - pos2.col;
         return (long)Math.Sqrt(dr * dr + dc * dc);
     }
 
-    public static long Distance3DManhattan((int x, int y, int z) pos1, (int x, int y, int z) pos2)
+    public static long Distance3DManhattan((long x, long y, long z) pos1, (long x, long y, long z) pos2)
     {
         return Math.Abs(pos1.x - pos2.x) + Math.Abs(pos1.y - pos2.y) + Math.Abs(pos1.z - pos2.z);
     }   
@@ -222,9 +222,9 @@ public static char[,] ToCharMatrix(string[,] source)
 
     public static long Distance3DEuclidean(Point3D pos1, Point3D pos2)
     {
-        int dx = pos1.X - pos2.X;
-        int dy = pos1.Y - pos2.Y;
-        int dz = pos1.Z - pos2.Z;
+        long dx = pos1.X - pos2.X;
+        long dy = pos1.Y - pos2.Y;
+        long dz = pos1.Z - pos2.Z;
         return (long)Math.Sqrt(dx * dx + dy * dy + dz * dz);
     }
 
